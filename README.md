@@ -17,8 +17,8 @@ OCT-Diagnosis-Backend is a Django-based backend for an Optical Coherence Tomogra
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/gaoux/OCT-diagnosis-backend.git`
-cd OCT-diagnosis-backend `
+git clone https://github.com/gaoux/OCT-diagnosis-backend.git
+cd OCT-diagnosis-backend
 ```
 
 ### 2. Install Dependencies
