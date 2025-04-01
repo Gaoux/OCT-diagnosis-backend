@@ -1,10 +1,13 @@
 from django.http import JsonResponse
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated  # Import the permission class
 from rest_framework.parsers import MultiPartParser, FormParser
 import os
 from .services import predict_oct
 
 class PredictOCTView(APIView):
+    permission_classes = [IsAuthenticated]  # This line ensures the user must be authenticated with JWT
+    
     parser_classes = (MultiPartParser, FormParser)  # Handles file uploads
 
     def post(self, request):

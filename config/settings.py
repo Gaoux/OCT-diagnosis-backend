@@ -52,6 +52,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -60,6 +61,38 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# Allow frontend connection (Update with your React frontend domain)
+CORS_ALLOWED_ORIGINS = [
+    #"https://your-frontend.com",
+    "http://localhost:5173",  # For local dev React + Vite
+]
+
+# REST Framework Configuration (Enable JWT Authentication)
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+}
+
+
+# ------------------------------
+# HTTPS Settings (Comment these out until you have configured HTTPS and SSH key)
+
+# Use HTTPS for secure cookies in production
+# CSRF_COOKIE_SECURE = True  # Uncomment this line in production (only over HTTPS)
+# SESSION_COOKIE_SECURE = True  # Uncomment this line in production (only over HTTPS)
+# SECURE_BROWSER_XSS_FILTER = True  # Uncomment this line in production (for better security)
+# SECURE_CONTENT_TYPE_NOSNIFF = True  # Uncomment this line in production (prevent sniffing)
+# SECURE_SSL_REDIRECT = True  # Redirect all HTTP traffic to HTTPS - Uncomment once HTTPS is ready
+# SECURE_HSTS_SECONDS = 31536000  # Force HTTPS for one year (uncomment after configuring HTTPS)
+# SECURE_HSTS_INCLUDE_SUBDOMAINS = True  # Apply HSTS to all subdomains (uncomment in production)
+# SECURE_HSTS_PRELOAD = True  # Allow your domain to be included in the HSTS preload list - Uncomment in production
+
+# ------------------------------
+# When ready with HTTPS (after SSH key and SSL certificate configuration), uncomment the lines above.
+
+
 
 ROOT_URLCONF = 'config.urls'
 
