@@ -28,14 +28,13 @@ env.read_env(os.path.join(BASE_DIR, ".env"))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-icf=$#euboi8djk0n4x$%=ftg@+b+9ve(r=tcap$49_j1gbq6l'
+SECRET_KEY = env("SECRET_KEY")  # Load secret key securely
+DEBUG = env("DEBUG")  # Load debug mode (set to False in production)
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost"])
 
+CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=["http://localhost:5173"])
 
 # Application definition
 
@@ -62,11 +61,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# Allow frontend connection (Update with your React frontend domain)
-CORS_ALLOWED_ORIGINS = [
-    #"https://your-frontend.com",
-    "http://localhost:5173",  # For local dev React + Vite
-]
+
 
 # REST Framework Configuration (Enable JWT Authentication)
 REST_FRAMEWORK = {
