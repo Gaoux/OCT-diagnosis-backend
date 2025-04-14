@@ -21,11 +21,23 @@ git clone https://github.com/gaoux/OCT-diagnosis-backend.git
 cd OCT-diagnosis-backend
 ```
 
-### 2. Install Dependencies
+### 2. Setup Environment with Conda
+
+Ensure you have [Conda installed](https://docs.conda.io/en/latest/miniconda.html).
+
+#### Create the Conda Environment
 
 ```bash
-pip install -r requirements.txt
+conda env create -f environment.yml
 ```
+
+#### Activate the Environment
+
+```bash
+conda activate octenv
+```
+
+> ℹ️ The environment name is defined in `environment.yml`. If you want to rename it, change the `name:` field in the file.
 
 ### 3. Apply Migrations
 
@@ -45,20 +57,31 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-The API should now be accessible at:
-http://127.0.0.1:8000
+The API should now be accessible at:  
+[http://127.0.0.1:8000](http://127.0.0.1:8000)
 
-### Create and Activate a Virtual Environment (Conda)
-
-```bash
-conda create -n oct_backend_env python=3.9
-conda activate oct_backend_env
-```
+---
 
 ## API Endpoints
 
 Coming soon...
 
+---
+
+## Updating Dependencies
+
+If you install new packages in the environment, you can update the `environment.yml` file:
+
+```bash
+conda env export --from-history > environment.yml
+```
+
+---
+
 ## License
 
 This project is licensed under the GPL-3.0 license.
+
+```
+
+```
