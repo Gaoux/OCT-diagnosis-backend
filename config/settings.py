@@ -31,6 +31,7 @@ env.read_env(os.path.join(BASE_DIR, ".env"))
 SECRET_KEY = env("SECRET_KEY")  # Load secret key securely
 DEBUG = env("DEBUG")  # Load debug mode (set to False in production)
 
+CORS_ALLOW_CREDENTIALS = True
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost"])
 
@@ -43,6 +44,7 @@ INSTALLED_APPS = [
     "apps.oct_analysis", 
     "apps.users", 
     'django.contrib.admin',
+        'corsheaders',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
