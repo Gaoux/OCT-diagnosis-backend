@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import environ
 import os
+from corsheaders.defaults import default_headers
+
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -44,12 +46,14 @@ INSTALLED_APPS = [
     "apps.oct_analysis", 
     "apps.users", 
     'django.contrib.admin',
-        'corsheaders',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_filters',
+    'corsheaders',
+
 ]
 
 MIDDLEWARE = [
@@ -174,3 +178,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Custom User (required for login/register)
 AUTH_USER_MODEL = 'users.CustomUser'
+
+# CORS CONFIG PARA FRONTEND
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+]
+
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    'X-CSRFToken',
+    'authorization',
+]
