@@ -72,6 +72,9 @@ REST_FRAMEWORK = {
     ),
 }
 
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+)
 
 # ------------------------------
 # HTTPS Settings (Comment these out until you have configured HTTPS and SSH key)
