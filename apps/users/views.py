@@ -4,6 +4,7 @@ from rest_framework import viewsets, filters, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
+from rest_framework import serializers
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q
 
@@ -33,9 +34,6 @@ class LoginView(APIView):
                 'user': user_data
             })
         return Response({'error': 'Credenciales inválidas'}, status=status.HTTP_401_UNAUTHORIZED)
-    
-# Primero, creamos los serializers adicionales que necesitamos
-from rest_framework import serializers
 
 class UserDetailSerializer(serializers.ModelSerializer):
     class Meta:
@@ -154,3 +152,22 @@ class DashboardStatsView(APIView):
         
         serializer = DashboardStatsSerializer(stats)
         return Response(serializer.data)
+
+class UserProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def patch(self, request):
+        serializer = UserUpdateSerializer(
+            request.user, 
+            data=request.data, 
+            partial=True  # ← Esto permite actualización parcial
+        )
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+            
+        return Response(
+            {"detail": "Validation failed", "errors": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST
+        )

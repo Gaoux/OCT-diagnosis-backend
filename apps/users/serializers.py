@@ -47,10 +47,36 @@ class UserCreateSerializer(serializers.ModelSerializer):
         return user
 
 class UserUpdateSerializer(serializers.ModelSerializer):
-    """Serializer para actualizar usuarios"""
+    current_password = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    new_password = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    
     class Meta:
         model = CustomUser
-        fields = ('id', 'email', 'name', 'role', 'is_admin')
+        fields = ('id', 'email', 'name', 'currentPassword', 'newPassword', 'confirmPassword')
+        extra_kwargs = {
+            'email': {'required': False},
+            'name': {'required': False}
+        }
+    
+    def validate(self, data):
+        # Validación solo si se envía nueva contraseña
+        if 'newPassword' in data and data['newPassword']:
+            if 'currentPassword' not in data or not data['current_password']:
+                raise serializers.ValidationError({"current_password": "Current password is required"})
+            
+            if not self.instance.check_password(data['currentPassword']):
+                raise serializers.ValidationError({"currentPassword": "Incorrect password"})
+        
+        return data
+    
+    def update(self, instance, validated_data):
+        # Actualizar contraseña
+        if 'newPassword' in validated_data and validated_data['newPassword']:
+            instance.set_password(validated_data.pop('newPassword'))
+            validated_data.pop('currentPassword', None)
+        
+        # Actualizar otros campos
+        return super().update(instance, validated_data)
 
 class AdminRegistrationSerializer(serializers.ModelSerializer):
     """Serializer específico para crear administradores"""
