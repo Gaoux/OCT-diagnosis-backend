@@ -11,5 +11,6 @@ urlpatterns = [
     path('admin/register/', AdminRegistrationView.as_view(), name='admin-register'),
     path('admin/dashboard-stats/', DashboardStatsView.as_view(), name='dashboard-stats'),
     path('profile/', UserProfileView.as_view(), name='user-profile'),
+    path('kpis/', include('apps.users.KPIs.urls')),  
     path('', include(router.urls)),
 ]

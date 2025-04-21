@@ -26,6 +26,9 @@ class LoginView(APIView):
         user = authenticate(email=email, password=password)
 
         if user:
+            user.login_count += 1
+            user.save()
+
             refresh = RefreshToken.for_user(user)
             user_data = UserSerializer(user).data
             return Response({
