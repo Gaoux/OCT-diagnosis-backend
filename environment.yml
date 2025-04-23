@@ -207,5 +207,9 @@ dependencies:
       - wcwidth==0.2.13
       - webencodings==0.5.1
       - yarg==0.1.9
+      - pytest==8.2.2
+      - pytest-django==4.7.0
+      - pytest-cov==5.0.0
+      - mock==5.1.0
 variables:
   CONDA_DEFAULT_ENV: octenv
