@@ -134,6 +134,10 @@ DATABASES = {
     }
 }
 
+# URL path for accessing media files via browser (e.g., http://localhost:8000/media/...)
+MEDIA_URL = '/media/'
+# Filesystem path where uploaded media files will be stored (inside the project directory)
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
