@@ -21,7 +21,7 @@ git clone https://github.com/gaoux/OCT-diagnosis-backend.git
 cd OCT-diagnosis-backend
 ```
 
-### 2. Setup Environment with Conda
+### 2. Setup Environment with Conda and pip
 
 Ensure you have [Conda installed](https://docs.conda.io/en/latest/miniconda.html).
 
@@ -31,13 +31,38 @@ Ensure you have [Conda installed](https://docs.conda.io/en/latest/miniconda.html
 conda env create -f environment.yml
 ```
 
+This will create an environment named `octsense` (or as defined in the `name:` field of `environment.yml`).
+
 #### Activate the Environment
 
 ```bash
-conda activate octenv
+conda activate octsense
 ```
 
-> ℹ️ The environment name is defined in `environment.yml`. If you want to rename it, change the `name:` field in the file.
+#### Install Python Dependencies via pip
+
+Once inside the environment, install all dependencies listed in `requirements.txt`:
+
+```bash
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+> ⚠️ All project dependencies must be installed using `pip`, not Conda.
+
+---
+
+## Keeping Dependencies Up to Date
+
+If you or any team member installs or modifies dependencies inside the environment, they must update the `requirements.txt` file with:
+
+```bash
+pip freeze | grep -vE ' @ file://|^-e|pywin32|win32|colorama|pypiwin32|tensorflow-intel' > requirements.txt
+```
+
+This ensures clean, cross-platform, Docker-friendly dependencies.
+
+---
 
 ### 3. Apply Migrations
 
@@ -68,20 +93,6 @@ Coming soon...
 
 ---
 
-## Updating Dependencies
-
-If you install new packages in the environment, you can update the `environment.yml` file:
-
-```bash
-conda env export --from-history > environment.yml
-```
-
----
-
 ## License
 
 This project is licensed under the GPL-3.0 license.
-
-```
-
-```
