@@ -44,6 +44,7 @@ CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=["http://localho
 INSTALLED_APPS = [
     "rest_framework",
     "apps.oct_analysis", 
+    'apps.reports',
     "apps.users", 
     'django.contrib.admin',
     'django.contrib.auth',

@@ -24,6 +24,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("api/oct/", include("apps.oct_analysis.urls")),  # Include app's URLs
     path('api/users/', include('apps.users.urls')), #rute login & register
+    path('api/reports/', include('apps.reports.urls')),
     
     # JWT Authentication URLs
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # Token obtain view
