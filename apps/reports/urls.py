@@ -2,7 +2,8 @@ from django.urls import path
 from .views  import (
     CreateReportView, UserReportListView,
     ReportDetailView, ReportDeleteView,
-    ReportUpdateView, ReportSummaryView
+    ReportUpdateView, ReportSummaryView,
+    SecureMediaView
 )
 
 urlpatterns = [
@@ -12,4 +13,5 @@ urlpatterns = [
     path('<uuid:pk>/delete/', ReportDeleteView.as_view(), name='report-delete'),
     path('<uuid:pk>/update/', ReportUpdateView.as_view(), name='report-update'),
     path('summary/', ReportSummaryView.as_view(), name='report-summary'),
+    path('image/<uuid:report_id>/', SecureMediaView.as_view(), name='report-image'),
 ]

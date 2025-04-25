@@ -30,6 +30,3 @@ urlpatterns = [
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # Token obtain view
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # Token refresh view
 ]
-
-# Serve media files during development (maps MEDIA_URL to files in MEDIA_ROOT)
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

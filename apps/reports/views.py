@@ -4,6 +4,7 @@ from .models import Report
 from .serializers import ReportSerializer
 from rest_framework.views import APIView
 from django.db.models import Count
+from django.http import FileResponse, Http404
 
 # Create Report View
 # This view allows authenticated users to create a report.
@@ -66,3 +67,18 @@ class ReportSummaryView(APIView):
             'most_common_diagnostics': user_reports.values('predicted_diagnostic').annotate(count=Count('id')).order_by('-count')[:5],
         }
         return Response(summary)
+
+
+class SecureMediaView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, report_id):
+        try:
+            report = Report.objects.get(id=report_id, user=request.user)
+            image_path = report.image.image_file.path
+        except Report.DoesNotExist:
+            raise Http404("Not found or permission denied")
+        except Exception:
+            raise Http404("Image unavailable")
+
+        return FileResponse(open(image_path, 'rb'))
