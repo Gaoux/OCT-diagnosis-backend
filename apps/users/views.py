@@ -8,8 +8,9 @@ from rest_framework import serializers
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q
 
+
 from .models import CustomUser
-from .serializers import RegisterSerializer, UserSerializer
+from .serializers import RegisterSerializer, UserSerializer, RecentUserSerializer
 
 class RegisterView(APIView):
     def post(self, request):
@@ -148,8 +149,8 @@ class DashboardStatsView(APIView):
     def get(self, request):
         stats = {
             'total_users': CustomUser.objects.count(),
-            'total_patients': CustomUser.objects.filter(role='paciente').count(),
-            'total_ophthalmologists': CustomUser.objects.filter(role='oftalmologo').count(),
+            'total_patients': CustomUser.objects.filter(role='normal').count(),
+            'total_ophthalmologists': CustomUser.objects.filter(role='professional').count(),
             'total_admins': CustomUser.objects.filter(role='admin').count(),
         }
         
@@ -174,3 +175,11 @@ class UserProfileView(APIView):
             {"detail": "Validation failed", "errors": serializer.errors},
             status=status.HTTP_400_BAD_REQUEST
         )
+class RecentUsersView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        # Obtén los últimos 5 usuarios registrados
+        recent_users = CustomUser.objects.order_by('-date_joined')[:5]
+        serializer = RecentUserSerializer(recent_users, many=True)
+        return Response(serializer.data)

@@ -97,3 +97,8 @@ class DashboardStatsSerializer(serializers.Serializer):
     total_patients = serializers.IntegerField()
     total_ophthalmologists = serializers.IntegerField()
     total_admins = serializers.IntegerField()
+    
+class RecentUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'name', 'email', 'date_joined']
