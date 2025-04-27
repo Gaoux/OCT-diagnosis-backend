@@ -24,11 +24,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("api/oct/", include("apps.oct_analysis.urls")),  # Include app's URLs
     path('api/users/', include('apps.users.urls')), #rute login & register
+    path('api/reports/', include('apps.reports.urls')),
     
     # JWT Authentication URLs
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # Token obtain view
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # Token refresh view
 ]
-
-# Serve media files during development (maps MEDIA_URL to files in MEDIA_ROOT)
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
