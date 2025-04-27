@@ -37,13 +37,14 @@ CORS_ALLOW_CREDENTIALS = True
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost"])
 
-CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=["http://localhost:5173"])
+CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=["http://localhost:3000"])
 
 # Application definition
 
 INSTALLED_APPS = [
     "rest_framework",
     "apps.oct_analysis", 
+    'apps.reports',
     "apps.users", 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -134,6 +135,10 @@ DATABASES = {
     }
 }
 
+# URL path for accessing media files via browser (e.g., http://localhost:8000/media/...)
+MEDIA_URL = '/media/'
+# Filesystem path where uploaded media files will be stored (inside the project directory)
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -177,14 +182,11 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Custom User (required for login/register)
-AUTH_USER_MODEL = 'users.CustomUser'
+AUTH_USER_MODEL = 'users.UserAccount'
 
 # CORS CONFIG PARA FRONTEND
 CORS_ALLOW_CREDENTIALS = True
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-]
 
 CORS_ALLOW_HEADERS = list(default_headers) + [
     'X-CSRFToken',
