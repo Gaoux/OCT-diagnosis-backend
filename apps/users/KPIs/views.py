@@ -6,7 +6,8 @@ from .serializers import ErrorReportSerializer
 from django.utils.timezone import now
 from datetime import timedelta
 from django.db.models import Avg, Count
-from ..models import CustomUser  
+from ..models import CustomUser, ErrorReportLog
+
 
 from rest_framework.permissions import BasePermission
 
@@ -42,16 +43,13 @@ class AdminKPIsView(APIView):
 
         return Response(kpis)
 
-class ErrorReportView(APIView):
-    permission_classes = [IsAuthenticated]
+class ErrorLogsView(APIView):
+    permission_classes = [IsAdminUser]
 
-    def post(self, request):
-        """Permite a los usuarios reportar un error."""
-        serializer = ErrorReportSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(user=request.user)
-            return Response(serializer.data, status=201)
-        return Response(serializer.errors, status=400)
+    def get(self, request):
+        logs = ErrorReport.objects.all().order_by('-created_at')  # Obtén los logs ordenados por fecha
+        serializer = ErrorReportSerializer(logs, many=True)
+        return Response(serializer.data)
 
 class AdminErrorReportsView(APIView):
     permission_classes = [IsAdminUser]
