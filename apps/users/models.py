@@ -30,7 +30,6 @@ class CustomUser(AbstractUser):
     username = None
     email = models.EmailField(unique=True)
     name = models.CharField(max_length=100)
-    is_admin = models.BooleanField(default=False)
     login_count = models.PositiveIntegerField(default=0)  # Nuevo campo para contar inicios de sesión
 
     # Use email as the unique identifier instead of username
@@ -48,5 +47,5 @@ class CustomUser(AbstractUser):
     role = models.CharField(max_length=20, choices=ROLES, default='normal')
 
     def __str__(self):
-        return self.username
+        return self.email
 

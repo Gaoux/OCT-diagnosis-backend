@@ -74,7 +74,6 @@ class AdminRegistrationSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         validated_data['role'] = 'admin'
-        validated_data['is_admin'] = True
         password = validated_data.pop('password')
         user = CustomUser.objects.create_user(
             password=password,
@@ -92,7 +91,7 @@ class DashboardStatsSerializer(serializers.Serializer):
 class IsAdminUser(IsAuthenticated):
     """Permiso personalizado que verifica si el usuario es administrador"""
     def has_permission(self, request, view):
-        return super().has_permission(request, view) and request.user.is_admin
+        return super().has_permission(request, view) and request.user.role == 'admin'
 
 # Ahora las vistas para el CRUD y el dashboard
 class UserViewSet(viewsets.ModelViewSet):
@@ -125,19 +124,17 @@ class UserViewSet(viewsets.ModelViewSet):
             )
         return queryset
 
-class AdminRegistrationView(APIView):
+class RegisterAdminView(APIView):
     """
-    Vista para registrar específicamente administradores.
+    Vista para registrar administradores.
     """
-    permission_classes = [IsAdminUser]
-    
+    permission_classes = [IsAdminUser]  
+
     def post(self, request):
         serializer = AdminRegistrationSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({'message': 'Administrador registrado correctamente'}, 
-                          status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Administrador registrado correctamente'}, status=status.HTTP_201_CREATED)
 
 class DashboardStatsView(APIView):
     """
