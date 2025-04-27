@@ -6,7 +6,7 @@ from .serializers import ErrorReportSerializer
 from django.utils.timezone import now
 from datetime import timedelta
 from django.db.models import Avg, Count
-from ..models import CustomUser  
+from ..models import UserAccount  
 
 from rest_framework.permissions import BasePermission
 
@@ -22,10 +22,10 @@ class AdminKPIsView(APIView):
         last_30_days = now() - timedelta(days=30)
 
         # Calcular KPIs
-        users_last_30_days = CustomUser.objects.filter(date_joined__gte=last_30_days).count()
-        active_users_last_month = CustomUser.objects.filter(last_login__gte=last_30_days).count()
-        average_logins_per_user = CustomUser.objects.aggregate(avg_logins=Avg('login_count'))['avg_logins'] or 0
-        role_distribution = CustomUser.objects.values('role').annotate(count=Count('role'))
+        users_last_30_days = UserAccount.objects.filter(date_joined__gte=last_30_days).count()
+        active_users_last_month = UserAccount.objects.filter(last_login__gte=last_30_days).count()
+        average_logins_per_user = UserAccount.objects.aggregate(avg_logins=Avg('login_count'))['avg_logins'] or 0
+        role_distribution = UserAccount.objects.values('role').annotate(count=Count('role'))
 
         # KPI de errores reportados
         total_errors_reported = ErrorReport.objects.count()

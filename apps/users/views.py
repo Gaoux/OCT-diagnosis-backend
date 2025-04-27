@@ -8,7 +8,7 @@ from rest_framework import serializers
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q
 
-from .models import CustomUser
+from .models import UserAccount
 from .serializers import RegisterSerializer, UserSerializer
 
 class RegisterView(APIView):
@@ -40,7 +40,7 @@ class LoginView(APIView):
 
 class UserDetailSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CustomUser
+        model = UserAccount
         fields = ('id',  'email', 'name', 'role', 'is_admin', 'date_joined')
         read_only_fields = ('date_joined',)
 
@@ -48,12 +48,12 @@ class UserCreateSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     
     class Meta:
-        model = CustomUser
+        model = UserAccount
         fields = ('id',  'email', 'password', 'name', 'role', 'is_admin')
     
     def create(self, validated_data):
         password = validated_data.pop('password')
-        user = CustomUser.objects.create_user(
+        user = UserAccount.objects.create_user(
             password=password,
             **validated_data
         )
@@ -61,21 +61,21 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CustomUser
+        model = UserAccount
         fields = ('id', 'email', 'name', 'role', 'is_admin')
 
 class AdminRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     
     class Meta:
-        model = CustomUser
+        model = UserAccount
         fields = ('id', 'email', 'password', 'name')
     
     def create(self, validated_data):
         validated_data['role'] = 'admin'
         validated_data['is_admin'] = True
         password = validated_data.pop('password')
-        user = CustomUser.objects.create_user(
+        user = UserAccount.objects.create_user(
             password=password,
             **validated_data
         )
@@ -99,7 +99,7 @@ class UserViewSet(viewsets.ModelViewSet):
     ViewSet para el CRUD completo de usuarios.
     Solo accesible para administradores.
     """
-    queryset = CustomUser.objects.all()
+    queryset = UserAccount.objects.all()
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = [ 'email', 'name']
     filterset_fields = ['role']
@@ -115,7 +115,7 @@ class UserViewSet(viewsets.ModelViewSet):
         return UserDetailSerializer
     
     def get_queryset(self):
-        queryset = CustomUser.objects.all()
+        queryset = UserAccount.objects.all()
         search = self.request.query_params.get('search', None)
         if search:
             queryset = queryset.filter(
@@ -147,10 +147,10 @@ class DashboardStatsView(APIView):
     
     def get(self, request):
         stats = {
-            'total_users': CustomUser.objects.count(),
-            'total_patients': CustomUser.objects.filter(role='paciente').count(),
-            'total_ophthalmologists': CustomUser.objects.filter(role='oftalmologo').count(),
-            'total_admins': CustomUser.objects.filter(role='admin').count(),
+            'total_users': UserAccount.objects.count(),
+            'total_patients': UserAccount.objects.filter(role='paciente').count(),
+            'total_ophthalmologists': UserAccount.objects.filter(role='oftalmologo').count(),
+            'total_admins': UserAccount.objects.filter(role='admin').count(),
         }
         
         serializer = DashboardStatsSerializer(stats)

@@ -1,9 +1,9 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser
+from .models import UserAccount
 
-class CustomUserAdmin(UserAdmin):
-    model = CustomUser
+class UserAccountAdmin(UserAdmin):
+    model = UserAccount
     list_display = ( 'email', 'role', 'is_staff', 'is_superuser', 'is_active')
     list_filter = ('role', 'is_staff', 'is_superuser', 'is_active')
     ordering = ('email',)
@@ -14,4 +14,4 @@ class CustomUserAdmin(UserAdmin):
         ('Información adicional', {'fields': ('name', 'role', 'is_admin')}),
     )
 
-admin.site.register(CustomUser, CustomUserAdmin)
+admin.site.register(UserAccount, UserAccountAdmin)

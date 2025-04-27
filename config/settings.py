@@ -181,7 +181,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Custom User (required for login/register)
-AUTH_USER_MODEL = 'users.CustomUser'
+AUTH_USER_MODEL = 'users.UserAccount'
 
 # CORS CONFIG PARA FRONTEND
 CORS_ALLOW_CREDENTIALS = True
