@@ -1,6 +1,6 @@
 import uuid
 from django.db import models
-from apps.users.models import CustomUser
+from apps.users.models import UserAccount
 
 class Image(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -15,7 +15,7 @@ class Image(models.Model):
 
 class Report(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    user = models.ForeignKey(UserAccount, on_delete=models.CASCADE)
     image = models.OneToOneField(Image, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     predicted_diagnostic = models.CharField(max_length=100)
