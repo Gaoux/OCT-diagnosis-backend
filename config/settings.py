@@ -37,7 +37,7 @@ CORS_ALLOW_CREDENTIALS = True
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost"])
 
-CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=["http://localhost:5173"])
+CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=["http://localhost:3000"])
 
 # Application definition
 
@@ -187,9 +187,6 @@ AUTH_USER_MODEL = 'users.UserAccount'
 # CORS CONFIG PARA FRONTEND
 CORS_ALLOW_CREDENTIALS = True
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-]
 
 CORS_ALLOW_HEADERS = list(default_headers) + [
     'X-CSRFToken',
