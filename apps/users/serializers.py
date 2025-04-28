@@ -100,5 +100,5 @@ class DashboardStatsSerializer(serializers.Serializer):
     
 class RecentUserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CustomUser
+        model = UserAccount
         fields = ['id', 'name', 'email', 'date_joined']

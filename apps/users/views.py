@@ -8,7 +8,7 @@ from rest_framework import serializers
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q
 
-from .models import CustomUser
+from .models import UserAccount
 from .serializers import RegisterSerializer, UserSerializer, RecentUserSerializer
 from .models import UserAccount
 from .serializers import RegisterSerializer, UserSerializer
@@ -150,10 +150,10 @@ class DashboardStatsView(APIView):
     
     def get(self, request):
         stats = {
-            'total_users': CustomUser.objects.count(),
-            'total_patients': CustomUser.objects.filter(role='normal').count(),
-            'total_ophthalmologists': CustomUser.objects.filter(role='professional').count(),
-            'total_admins': CustomUser.objects.filter(role='admin').count(),
+            'total_users': UserAccount.objects.count(),
+            'total_patients': UserAccount.objects.filter(role='normal').count(),
+            'total_ophthalmologists': UserAccount.objects.filter(role='professional').count(),
+            'total_admins': UserAccount.objects.filter(role='admin').count(),
         }
         
         serializer = DashboardStatsSerializer(stats)
@@ -182,6 +182,6 @@ class RecentUsersView(APIView):
 
     def get(self, request):
         # Obtén los últimos 5 usuarios registrados
-        recent_users = CustomUser.objects.order_by('-date_joined')[:5]
+        recent_users = UserAccount.objects.order_by('-date_joined')[:5]
         serializer = RecentUserSerializer(recent_users, many=True)
         return Response(serializer.data)
