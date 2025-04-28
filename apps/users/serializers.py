@@ -1,32 +1,32 @@
 from rest_framework import serializers
-from .models import CustomUser
+from .models import UserAccount
 from django.core.exceptions import ValidationError
 
 class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CustomUser
+        model = UserAccount
         fields = ['email', 'password', 'name', 'role']
         extra_kwargs = {'password': {'write_only': True}}
 
     def validate_email(self, value):
-        if CustomUser.objects.filter(email=value).exists():
+        if UserAccount.objects.filter(email=value).exists():
             raise ValidationError("Ese email ya está registrado.")
         return value
 
     def create(self, validated_data): 
-        user = CustomUser.objects.create_user(**validated_data)
+        user = UserAccount.objects.create_user(**validated_data)
         return user
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CustomUser
+        model = UserAccount
         fields = ('id', 'email', 'name', 'role', 'is_admin')
 
 class UserDetailSerializer(serializers.ModelSerializer):
     """Serializer para ver detalles completos de un usuario"""
     class Meta:
-        model = CustomUser
+        model = UserAccount
         fields = ('id', 'email', 'name', 'role', 'is_admin', 'date_joined')
         read_only_fields = ('date_joined',)
 
@@ -35,12 +35,12 @@ class UserCreateSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     
     class Meta:
-        model = CustomUser
+        model = UserAccount
         fields = ('id', 'email', 'password', 'name', 'role', 'is_admin')
     
     def create(self, validated_data):
         password = validated_data.pop('password')
-        user = CustomUser.objects.create_user(
+        user = UserAccount.objects.create_user(
             password=password,
             **validated_data
         )
@@ -51,7 +51,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     new_password = serializers.CharField(write_only=True, required=False, allow_blank=True)
     
     class Meta:
-        model = CustomUser
+        model = UserAccount
         fields = ('id', 'email', 'name', 'currentPassword', 'newPassword', 'confirmPassword')
         extra_kwargs = {
             'email': {'required': False},
@@ -83,13 +83,13 @@ class AdminRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     
     class Meta:
-        model = CustomUser
+        model = UserAccount
         fields = ('id', 'email', 'password', 'name')
     
     def create(self, validated_data):
         validated_data['role'] = 'admin'
         validated_data['is_admin'] = True
-        return CustomUser.objects.create_user(**validated_data)
+        return UserAccount.objects.create_user(**validated_data)
 
 class DashboardStatsSerializer(serializers.Serializer):
     """Serializer para las estadísticas del dashboard"""
