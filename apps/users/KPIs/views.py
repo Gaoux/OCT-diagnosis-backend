@@ -8,12 +8,13 @@ from datetime import timedelta
 from django.db.models import Avg, Count
 from ..models import UserAccount  
 
+
 from rest_framework.permissions import BasePermission
 
 class IsAdminUser(BasePermission):
     def has_permission(self, request, view):
         # Verifica que el usuario esté autenticado y sea administrador
-        return request.user and request.user.is_authenticated and request.user.is_admin
+        return request.user and request.user.is_authenticated and request.user.role == 'admin'
 
 class AdminKPIsView(APIView):
     permission_classes = [IsAdminUser]
@@ -36,23 +37,19 @@ class AdminKPIsView(APIView):
             'users_last_30_days': users_last_30_days,
             'active_users_last_month': active_users_last_month,
             'average_logins_per_user': average_logins_per_user,
-            'role_distribution': role_distribution,
             'total_errors_reported': total_errors_reported,
             'unresolved_errors': unresolved_errors,
         }
 
         return Response(kpis)
 
-class ErrorReportView(APIView):
-    permission_classes = [IsAuthenticated]
+class ErrorLogsView(APIView):
+    permission_classes = [IsAdminUser]
 
-    def post(self, request):
-        """Permite a los usuarios reportar un error."""
-        serializer = ErrorReportSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(user=request.user)
-            return Response(serializer.data, status=201)
-        return Response(serializer.errors, status=400)
+    def get(self, request):
+        logs = ErrorReport.objects.all().order_by('-created_at')  # Obtén los logs ordenados por fecha
+        serializer = ErrorReportSerializer(logs, many=True)
+        return Response(serializer.data)
 
 class AdminErrorReportsView(APIView):
     permission_classes = [IsAdminUser]

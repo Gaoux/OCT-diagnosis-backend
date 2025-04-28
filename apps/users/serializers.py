@@ -3,6 +3,7 @@ from .models import UserAccount
 from django.core.exceptions import ValidationError
 
 class RegisterSerializer(serializers.ModelSerializer):
+    """Serializer para registrar usuarios generales"""
     class Meta:
         model = UserAccount
         fields = ['email', 'password', 'name', 'role']
@@ -19,9 +20,11 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    """Serializer para listar usuarios"""
     class Meta:
         model = UserAccount
         fields = ('id', 'email', 'name', 'role', 'is_admin')
+
 
 class UserDetailSerializer(serializers.ModelSerializer):
     """Serializer para ver detalles completos de un usuario"""
@@ -29,6 +32,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
         model = UserAccount
         fields = ('id', 'email', 'name', 'role', 'is_admin', 'date_joined')
         read_only_fields = ('date_joined',)
+
 
 class UserCreateSerializer(serializers.ModelSerializer):
     """Serializer para crear usuarios desde el panel de administración"""
@@ -46,7 +50,9 @@ class UserCreateSerializer(serializers.ModelSerializer):
         )
         return user
 
+
 class UserUpdateSerializer(serializers.ModelSerializer):
+    """Serializer para actualizar usuarios"""
     current_password = serializers.CharField(write_only=True, required=False, allow_blank=True)
     new_password = serializers.CharField(write_only=True, required=False, allow_blank=True)
     
@@ -60,23 +66,24 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     
     def validate(self, data):
         # Validación solo si se envía nueva contraseña
-        if 'newPassword' in data and data['newPassword']:
-            if 'currentPassword' not in data or not data['current_password']:
-                raise serializers.ValidationError({"current_password": "Current password is required"})
+        if 'new_password' in data and data['new_password']:
+            if 'current_password' not in data or not data['current_password']:
+                raise serializers.ValidationError({"current_password": "La contraseña actual es obligatoria."})
             
-            if not self.instance.check_password(data['currentPassword']):
-                raise serializers.ValidationError({"currentPassword": "Incorrect password"})
+            if not self.instance.check_password(data['current_password']):
+                raise serializers.ValidationError({"current_password": "La contraseña actual es incorrecta."})
         
         return data
     
     def update(self, instance, validated_data):
         # Actualizar contraseña
-        if 'newPassword' in validated_data and validated_data['newPassword']:
-            instance.set_password(validated_data.pop('newPassword'))
-            validated_data.pop('currentPassword', None)
+        if 'new_password' in validated_data and validated_data['new_password']:
+            instance.set_password(validated_data.pop('new_password'))
+            validated_data.pop('current_password', None)
         
         # Actualizar otros campos
         return super().update(instance, validated_data)
+
 
 class AdminRegistrationSerializer(serializers.ModelSerializer):
     """Serializer específico para crear administradores"""
@@ -98,7 +105,9 @@ class DashboardStatsSerializer(serializers.Serializer):
     total_ophthalmologists = serializers.IntegerField()
     total_admins = serializers.IntegerField()
     
+
 class RecentUserSerializer(serializers.ModelSerializer):
+    """Serializer para listar usuarios recientes"""
     class Meta:
         model = UserAccount
         fields = ['id', 'name', 'email', 'date_joined']

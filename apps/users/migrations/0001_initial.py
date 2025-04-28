@@ -50,4 +50,14 @@ class Migration(migrations.Migration):
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='error_reports', to=settings.AUTH_USER_MODEL)),
             ],
         ),
+        migrations.CreateModel(
+            name='ErrorReport',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('description', models.TextField()),
+                ('created_at', models.DateTimeField(default=django.utils.timezone.now)),
+                ('resolved', models.BooleanField(default=False)),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='error_reports', to=settings.AUTH_USER_MODEL)),
+            ],
+        ),
     ]
