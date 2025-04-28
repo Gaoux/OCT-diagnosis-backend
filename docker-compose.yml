@@ -1,0 +1,40 @@
+services:
+  web:
+    build: .
+    container_name: django_oct_backend
+    command: >
+      sh -c "python manage.py migrate &&
+            python manage.py runserver 0.0.0.0:8000"
+    restart: always
+    volumes:
+      - .:/app
+      - media_volume:/app/media
+    ports:
+      - '8000:8000'
+    env_file:
+      - .env
+    depends_on:
+      - db
+    networks:
+      - octsense_network
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB} # Fetches value from .env file
+      POSTGRES_USER: ${POSTGRES_USER} # Fetches value from .env file
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD} # Fetches value from .env file
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+    networks:
+      - octsense_network
+volumes:
+  media_volume:
+  postgres_data:
+
+networks:
+  octsense_network:
+    driver: bridge
