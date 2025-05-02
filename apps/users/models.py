@@ -42,6 +42,7 @@ class UserAccount(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField(default=timezone.now)
     last_login = models.DateTimeField(blank=True, null=True)
+    is_verified = models.BooleanField(default=False)
 
     ROLES = [
         ('normal', 'Normal'),
