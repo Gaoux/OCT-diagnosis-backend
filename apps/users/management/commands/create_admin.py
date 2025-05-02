@@ -15,9 +15,9 @@ class Command(BaseCommand):
                 email=email,
                 password=password,
                 name="Admin Default",
-                role="admin"  
+                role="admin" , 
                 is_verified=True
             )
-            self.stdout.write(self.style.SUCCESS('✅ Superusuario creado correctamente'))
+            self.stdout.write(self.style.SUCCESS(' Superusuario creado correctamente'))
         else:
-            self.stdout.write(self.style.WARNING('⚠️ El superusuario ya existe'))
+            self.stdout.write(self.style.WARNING('El superusuario ya existe'))
