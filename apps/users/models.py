@@ -44,11 +44,11 @@ class UserAccount(AbstractBaseUser, PermissionsMixin):
     last_login = models.DateTimeField(blank=True, null=True)
 
     ROLES = [
-        ('normal', 'Normal'),
+        ('pacient', 'Pacient'),
         ('professional', 'Professional'),
         ('admin', 'Administrator'),
     ]
-    role = models.CharField(max_length=20, choices=ROLES, default='normal')
+    role = models.CharField(max_length=20, choices=ROLES, default='pacient')
 
     objects = CustomUserManager()
 
