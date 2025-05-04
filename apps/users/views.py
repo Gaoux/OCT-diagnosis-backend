@@ -7,17 +7,29 @@ from django.contrib.auth import authenticate
 from rest_framework import serializers
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q
+from rest_framework_simplejwt.tokens import AccessToken
+from rest_framework.permissions import AllowAny
+from django.contrib.auth import get_user_model
+from .utils import send_verification_email, send_reset_password_email
 
 from .models import UserAccount
 from .serializers import RegisterSerializer, UserSerializer
+User = get_user_model()
 
 class RegisterView(APIView):
+    permission_classes = [AllowAny]
+
     def post(self, request):
-        serializer = RegisterSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({'message': 'Usuario registrado correctamente'}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        data = request.data
+        user = User.objects.create_user(
+            email=data['email'],
+            name=data['name'],
+            password=data['password'],
+        )
+        user.is_verified = False
+        user.save()
+        send_verification_email(user, request)
+        return Response({'message': 'Usuario creado, revisa tu correo para verificar'}, status=status.HTTP_201_CREATED)
 
 class LoginView(APIView):
     def post(self, request):
@@ -26,6 +38,9 @@ class LoginView(APIView):
         user = authenticate(email=email, password=password)
 
         if user:
+            if not user.is_verified:
+                return Response({'error': 'Debes confirmar tu correo antes de iniciar sesión.'}, status=status.HTTP_403_FORBIDDEN)
+
             user.login_count += 1
             user.save()
 
@@ -174,3 +189,53 @@ class UserProfileView(APIView):
             {"detail": "Validation failed", "errors": serializer.errors},
             status=status.HTTP_400_BAD_REQUEST
         )
+class VerifyEmailView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        token = request.GET.get('token')
+        print("TOKEN RECIBIDO:", token)
+        try:
+            access_token = AccessToken(token)
+            print("TOKEN DECODIFICADO:", access_token)
+            user_id = access_token['user_id']
+            user = User.objects.get(id=user_id)
+            user.is_verified = True
+            user.save()
+            return Response({'message': 'Correo verificado exitosamente'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            print("Token error:", str(e))  
+            return Response({'error': 'Token inválido'}, status=status.HTTP_400_BAD_REQUEST)
+
+class ForgotPasswordView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email')
+        try:
+            user = User.objects.get(email=email)
+            if not user.is_verified:
+                return Response({'error': 'Correo no verificado'}, status=status.HTTP_400_BAD_REQUEST)
+            send_reset_password_email(user, request)
+            return Response({'message': 'Correo de restablecimiento enviado'}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({'error': 'Correo no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
+class ResetPasswordView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        token = request.data.get('token')
+        new_password = request.data.get('password')
+
+        try:
+            access_token = AccessToken(token)
+            user_id = access_token['user_id']
+            user = User.objects.get(id=user_id)
+            user.set_password(new_password)
+            user.save()
+            return Response({'message': 'Contraseña restablecida correctamente'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            print("Token error:", str(e))
+            return Response({'error': 'Token inválido o expirado'}, status=status.HTTP_400_BAD_REQUEST)
+

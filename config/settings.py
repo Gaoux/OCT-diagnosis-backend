@@ -14,7 +14,8 @@ from pathlib import Path
 import environ
 import os
 from corsheaders.defaults import default_headers
-
+env = environ.Env()
+environ.Env.read_env()
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -33,6 +34,7 @@ env.read_env(os.path.join(BASE_DIR, ".env"))
 SECRET_KEY = env("SECRET_KEY")  # Load secret key securely
 DEBUG = env("DEBUG")  # Load debug mode (set to False in production)
 
+FRONTEND_URL = env('FRONTEND_URL', cast=str, default='http://localhost:3000')
 CORS_ALLOW_CREDENTIALS = True
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost"])
@@ -192,3 +194,14 @@ CORS_ALLOW_HEADERS = list(default_headers) + [
     'X-CSRFToken',
     'authorization',
 ]
+#Email connections 
+# Mailtrap Sandbox
+EMAIL_BACKEND = env('EMAIL_BACKEND')
+EMAIL_HOST = env('EMAIL_HOST')
+EMAIL_PORT = env.int('EMAIL_PORT')  # ¡Importante! Convierte a entero.
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)  # True
+EMAIL_USE_SSL = env.bool('EMAIL_USE_SSL', default=False)  # False
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
+

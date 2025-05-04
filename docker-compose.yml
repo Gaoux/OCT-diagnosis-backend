@@ -4,6 +4,7 @@ services:
     container_name: django_oct_backend
     command: >
       sh -c "python manage.py migrate &&
+            python manage.py create_admin &&
             python manage.py runserver 0.0.0.0:8000"
     restart: always
     volumes:
