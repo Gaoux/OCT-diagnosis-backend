@@ -45,11 +45,11 @@ class UserAccount(AbstractBaseUser, PermissionsMixin):
     is_verified = models.BooleanField(default=False)
 
     ROLES = [
-        ('normal', 'Normal'),
+        ('patient', 'Patient'),
         ('professional', 'Professional'),
         ('admin', 'Administrator'),
     ]
-    role = models.CharField(max_length=20, choices=ROLES, default='normal')
+    role = models.CharField(max_length=20, choices=ROLES, default='patient')
 
     objects = CustomUserManager()
 
