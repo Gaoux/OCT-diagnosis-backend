@@ -48,7 +48,7 @@ class UserAccount(AbstractBaseUser, PermissionsMixin):
         ('professional', 'Professional'),
         ('admin', 'Administrator'),
     ]
-    role = models.CharField(max_length=20, choices=ROLES, default='normal')
+    role = models.CharField(max_length=50, choices=ROLES, default='normal')
 
     objects = CustomUserManager()
 

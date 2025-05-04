@@ -88,7 +88,7 @@ class AdminRegistrationSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         validated_data['role'] = 'admin'
-        validated_data['is_admin'] = True
+        #validated_data['is_admin'] = True
         return UserAccount.objects.create_user(**validated_data)
 
 class DashboardStatsSerializer(serializers.Serializer):
@@ -97,3 +97,8 @@ class DashboardStatsSerializer(serializers.Serializer):
     total_patients = serializers.IntegerField()
     total_ophthalmologists = serializers.IntegerField()
     total_admins = serializers.IntegerField()
+
+class RecentUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserAccount
+        fields = ['id', 'name', 'email', 'date_joined']
