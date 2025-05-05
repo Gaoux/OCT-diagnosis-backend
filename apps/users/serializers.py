@@ -3,18 +3,11 @@ from .models import UserAccount
 from django.core.exceptions import ValidationError
 
 class RegisterSerializer(serializers.ModelSerializer):
-    """Serializer para registrar usuarios generales"""
     class Meta:
         model = UserAccount
         fields = ['email', 'password', 'name', 'role']
         extra_kwargs = {'password': {'write_only': True}}
-    
-    def validate_role(self, value):
-        allowed_roles = ['patient', 'professional']
-        if value not in allowed_roles:
-            raise ValidationError(f"Rol inválido. Debe ser uno de: {', '.join(allowed_roles)}")
-        return value
-    
+
     def validate_email(self, value):
         if UserAccount.objects.filter(email=value).exists():
             raise ValidationError("Ese email ya está registrado.")
@@ -26,11 +19,9 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    """Serializer para listar usuarios"""
     class Meta:
         model = UserAccount
         fields = ('id', 'email', 'name', 'role', 'is_admin')
-
 
 class UserDetailSerializer(serializers.ModelSerializer):
     """Serializer para ver detalles completos de un usuario"""
@@ -38,7 +29,6 @@ class UserDetailSerializer(serializers.ModelSerializer):
         model = UserAccount
         fields = ('id', 'email', 'name', 'role', 'is_admin', 'date_joined')
         read_only_fields = ('date_joined',)
-
 
 class UserCreateSerializer(serializers.ModelSerializer):
     """Serializer para crear usuarios desde el panel de administración"""
@@ -56,9 +46,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
         )
         return user
 
-
 class UserUpdateSerializer(serializers.ModelSerializer):
-    """Serializer para actualizar usuarios"""
     current_password = serializers.CharField(write_only=True, required=False, allow_blank=True)
     new_password = serializers.CharField(write_only=True, required=False, allow_blank=True)
     
@@ -72,24 +60,23 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     
     def validate(self, data):
         # Validación solo si se envía nueva contraseña
-        if 'new_password' in data and data['new_password']:
-            if 'current_password' not in data or not data['current_password']:
-                raise serializers.ValidationError({"current_password": "La contraseña actual es obligatoria."})
+        if 'newPassword' in data and data['newPassword']:
+            if 'currentPassword' not in data or not data['current_password']:
+                raise serializers.ValidationError({"current_password": "Current password is required"})
             
-            if not self.instance.check_password(data['current_password']):
-                raise serializers.ValidationError({"current_password": "La contraseña actual es incorrecta."})
+            if not self.instance.check_password(data['currentPassword']):
+                raise serializers.ValidationError({"currentPassword": "Incorrect password"})
         
         return data
     
     def update(self, instance, validated_data):
         # Actualizar contraseña
-        if 'new_password' in validated_data and validated_data['new_password']:
-            instance.set_password(validated_data.pop('new_password'))
-            validated_data.pop('current_password', None)
+        if 'newPassword' in validated_data and validated_data['newPassword']:
+            instance.set_password(validated_data.pop('newPassword'))
+            validated_data.pop('currentPassword', None)
         
         # Actualizar otros campos
         return super().update(instance, validated_data)
-
 
 class AdminRegistrationSerializer(serializers.ModelSerializer):
     """Serializer específico para crear administradores"""
@@ -101,7 +88,7 @@ class AdminRegistrationSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         validated_data['role'] = 'admin'
-        validated_data['is_admin'] = True
+        #validated_data['is_admin'] = True
         return UserAccount.objects.create_user(**validated_data)
 
 class DashboardStatsSerializer(serializers.Serializer):
@@ -110,10 +97,8 @@ class DashboardStatsSerializer(serializers.Serializer):
     total_patients = serializers.IntegerField()
     total_ophthalmologists = serializers.IntegerField()
     total_admins = serializers.IntegerField()
-    
 
 class RecentUserSerializer(serializers.ModelSerializer):
-    """Serializer para listar usuarios recientes"""
     class Meta:
         model = UserAccount
         fields = ['id', 'name', 'email', 'date_joined']
