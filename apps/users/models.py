@@ -10,8 +10,12 @@ class CustomUserManager(BaseUserManager):
             raise ValueError('The Email field must be set')
         email = self.normalize_email(email)
         
+        role = extra_fields.pop('role', 'patient')
+        if role not in ['patient', 'professional', 'admin']:
+           role = 'patient'  # fallback seguro
+        
         # Create user without a username (since you are using email)
-        user = self.model(email=email, **extra_fields)
+        user = self.model(email=email,role=role, **extra_fields)
         
         # Set the password
         user.set_password(password)
@@ -42,13 +46,14 @@ class UserAccount(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField(default=timezone.now)
     last_login = models.DateTimeField(blank=True, null=True)
+    is_verified = models.BooleanField(default=False)
 
     ROLES = [
-        ('normal', 'Normal'),
+        ('patient', 'Patient'),
         ('professional', 'Professional'),
         ('admin', 'Administrator'),
     ]
-    role = models.CharField(max_length=20, choices=ROLES, default='normal')
+    role = models.CharField(max_length=20, choices=ROLES, default='patient')
 
     objects = CustomUserManager()
 

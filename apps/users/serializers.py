@@ -8,7 +8,13 @@ class RegisterSerializer(serializers.ModelSerializer):
         model = UserAccount
         fields = ['email', 'password', 'name', 'role']
         extra_kwargs = {'password': {'write_only': True}}
-
+    
+    def validate_role(self, value):
+        allowed_roles = ['patient', 'professional']
+        if value not in allowed_roles:
+            raise ValidationError(f"Rol inválido. Debe ser uno de: {', '.join(allowed_roles)}")
+        return value
+    
     def validate_email(self, value):
         if UserAccount.objects.filter(email=value).exists():
             raise ValidationError("Ese email ya está registrado.")
