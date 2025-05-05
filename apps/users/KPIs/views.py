@@ -10,13 +10,13 @@ from ..models import UserAccount
 
 from rest_framework.permissions import BasePermission
 
-class IsAdminUser(BasePermission):
-    def has_permission(self, request, view):
+#class IsAdminUser(BasePermission):
+  # def has_permission(self, request, view):
         # Verifica que el usuario esté autenticado y sea administrador
-        return request.user and request.user.is_authenticated and request.user.is_admin
+       # return request.user and request.user.is_authenticated and request.user.is_admin
 
 class AdminKPIsView(APIView):
-    permission_classes = [IsAdminUser]
+    #permission_classes = [IsAdminUser]
 
     def get(self, request):
         last_30_days = now() - timedelta(days=30)
@@ -54,44 +54,30 @@ class ErrorReportView(APIView):
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
 
-class AdminErrorReportsView(APIView):
-    permission_classes = [IsAdminUser]
+from apps.reports.models import Report  # Importa el modelo Report
+from apps.reports.serializers import ReportSerializer  # Importa el serializer correspondiente
 
-    def get(self, request, pk=None):
-        """Devuelve los detalles de un error específico o una lista de todos los errores."""
-        if pk:
-            # Detalles de un error específico
-            try:
-                error_report = ErrorReport.objects.get(pk=pk)
-                serializer = ErrorReportSerializer(error_report)
-                return Response(serializer.data)
-            except ErrorReport.DoesNotExist:
-                return Response({'error': 'Error reportado no encontrado'}, status=404)
+class AdminReportsView(APIView):
+    """
+    Vista para obtener todos los reportes de pacientes y filtrarlos por nombre.
+    """
+    #permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        """
+        Devuelve una lista de todos los reportes de pacientes.
+        Permite filtrar por el nombre del paciente.
+        """
+        # Obtén el parámetro de búsqueda del nombre del paciente
+        patient_name = request.query_params.get('name', None)
+
+        if patient_name:
+            # Filtra los reportes por el nombre del paciente
+            reports = Report.objects.filter(patient__name__icontains=patient_name)
         else:
-            # Lista de todos los errores con soporte para filtros
-            resolved = request.query_params.get('resolved')
-            if resolved is not None:
-                # Convertir el valor del parámetro a booleano
-                resolved = resolved.lower() == 'true'
-                error_reports = ErrorReport.objects.filter(resolved=resolved)
-            else:
-                error_reports = ErrorReport.objects.all()
+            # Obtén todos los reportes si no hay filtro
+            reports = Report.objects.all()
 
-            serializer = ErrorReportSerializer(error_reports, many=True)
-            return Response(serializer.data)
-
-    def patch(self, request, pk=None):
-        """Actualiza parcialmente un error reportado."""
-        if not pk:
-            return Response({'error': 'Se requiere un ID para actualizar un error'}, status=400)
-
-        try:
-            error_report = ErrorReport.objects.get(pk=pk)
-        except ErrorReport.DoesNotExist:
-            return Response({'error': 'Error reportado no encontrado'}, status=404)
-
-        serializer = ErrorReportSerializer(error_report, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=400)
+        # Serializa los reportes
+        serializer = ReportSerializer(reports, many=True)
+        return Response(serializer.data)
