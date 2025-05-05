@@ -20,17 +20,17 @@ class RegisterView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        data = request.data
-        user = User.objects.create_user(
-            email=data['email'],
-            name=data['name'],
-            password=data['password'],
-        )
-        user.is_verified = False
-        user.save()
-        send_verification_email(user, request)
-        return Response({'message': 'Usuario creado, revisa tu correo para verificar'}, status=status.HTTP_201_CREATED)
-
+        print(">>>>> DATA RECIBIDA:", request.data)
+        serializer = RegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            user.is_verified = False
+            user.save()
+            send_verification_email(user, request)
+            return Response({'message': 'Usuario creado, revisa tu correo para verificar'}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    
 class LoginView(APIView):
     def post(self, request):
         email = request.data.get('email')

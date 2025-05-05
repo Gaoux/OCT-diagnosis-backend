@@ -10,8 +10,12 @@ class CustomUserManager(BaseUserManager):
             raise ValueError('The Email field must be set')
         email = self.normalize_email(email)
         
+        role = extra_fields.pop('role', 'patient')
+        if role not in ['patient', 'professional', 'admin']:
+           role = 'patient'  # fallback seguro
+        
         # Create user without a username (since you are using email)
-        user = self.model(email=email, **extra_fields)
+        user = self.model(email=email,role=role, **extra_fields)
         
         # Set the password
         user.set_password(password)
