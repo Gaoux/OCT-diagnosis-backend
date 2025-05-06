@@ -22,19 +22,25 @@ class CreateReportView(generics.CreateAPIView):
 # This view allows authenticated users to view their own reports.
 class UserReportListView(generics.ListAPIView):
     serializer_class = ReportSerializer
-    permission_classes = [permissions.IsAuthenticated, IsProfessionalUser]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Report.objects.filter(user=self.request.user).order_by('-created_at')
+         if self.request.user.is_superuser or self.request.user.is_admin:
+            return Report.objects.all().order_by('-created_at')
+         else:
+            return Report.objects.filter(user=self.request.user).order_by('-created_at')
     
 # This view allows authenticated users to view their own reports.
 # It retrieves a specific report based on the provided UUID.
 class ReportDetailView(generics.RetrieveAPIView):
     serializer_class = ReportSerializer
-    permission_classes = [permissions.IsAuthenticated, IsProfessionalUser]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Report.objects.filter(user=self.request.user)
+         if self.request.user.is_superuser or self.request.user.is_admin:
+            return Report.objects.all()
+         else:
+            return Report.objects.filter(user=self.request.user).order_by('-created_at')
 
 # This view allows authenticated users to update their own reports.
 class ReportUpdateView(generics.UpdateAPIView):
