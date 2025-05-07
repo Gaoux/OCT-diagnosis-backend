@@ -54,9 +54,13 @@ class ReportUpdateView(generics.UpdateAPIView):
 # It retrieves a specific report based on the provided UUID.
 class ReportDeleteView(generics.DestroyAPIView):
     serializer_class = ReportSerializer
-    permission_classes = [permissions.IsAuthenticated, IsProfessionalUser]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
+        # Si el usuario es superusuario o administrador, puede acceder a todos los reportes
+        if self.request.user.is_superuser or getattr(self.request.user, 'is_admin', False):
+            return Report.objects.all()
+        # Si no, solo puede acceder a sus propios reportes
         return Report.objects.filter(user=self.request.user)
     
 # This view allows authenticated users to view a summary of their reports.
@@ -77,11 +81,17 @@ class ReportSummaryView(APIView):
 
 
 class SecureMediaView(APIView):
-    permission_classes = [permissions.IsAuthenticated, IsProfessionalUser]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, report_id):
         try:
-            report = Report.objects.get(id=report_id, user=request.user)
+            # Si el usuario es superusuario o administrador, puede acceder a cualquier reporte
+            if request.user.is_superuser or getattr(request.user, 'is_admin', False):
+                report = Report.objects.get(id=report_id)
+            else:
+                # Si no, solo puede acceder a sus propios reportes
+                report = Report.objects.get(id=report_id, user=request.user)
+
             image_path = report.image.image_file.path
         except Report.DoesNotExist:
             raise Http404("Not found or permission denied")
