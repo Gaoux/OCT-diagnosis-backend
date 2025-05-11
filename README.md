@@ -35,27 +35,12 @@ cd OCT-diagnosis-backend
 
 #### 2. Create a `.env` file
 
-Copy or create a `.env` file with the following:
+You can copy the provided `.env.example`:
 
-```env
-# Database Configuration
-DB_NAME=oct_sense
-DB_USER=django_user
-DB_PASSWORD=securepassword123
-DB_HOST=db
-DB_PORT=5432
-
-# PostgreSQL Configuration
-POSTGRES_DB=oct_sense
-POSTGRES_USER=django_user
-POSTGRES_PASSWORD=securepassword123
-
-# JWT
-SECRET_KEY=your-super-secret-key
-DEBUG=True
-ALLOWED_HOSTS=localhost,127.0.0.1
-CORS_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+```bash
+cp .env.example .env
 ```
+Or manually create your own .env with the structure of the `env.example` file.
 
 #### 3. Build the Docker Images
 
