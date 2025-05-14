@@ -125,17 +125,34 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+import sys
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env('DB_NAME'),
-        'USER': env('DB_USER'),
-        'PASSWORD': env('DB_PASSWORD'),
-        'HOST': env('DB_HOST',  default='localhost'),
-        'PORT': env('DB_PORT',  default='5432'),
+if 'test' in sys.argv or 'pytest' in sys.argv:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',  # Base de datos en memoria (más rápida)
+            # Opcional: Usar archivo físico para debug (reemplaza :memory:)
+            # 'NAME': BASE_DIR / 'test_db.sqlite3',
+        }
     }
-}
+    # Desactiva migraciones para acelerar pruebas
+    MIGRATION_MODULES = {
+        'oct_analysis': None,
+        'users': None,
+        'reports': None,
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': env('DB_NAME'),
+            'USER': env('DB_USER'),
+            'PASSWORD': env('DB_PASSWORD'),
+            'HOST': env('DB_HOST',  default='localhost'),
+            'PORT': env('DB_PORT',  default='5432'),
+        }
+    }
 
 # URL path for accessing media files via browser (e.g., http://localhost:8000/media/...)
 MEDIA_URL = '/media/'
