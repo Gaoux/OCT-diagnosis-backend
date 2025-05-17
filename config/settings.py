@@ -25,8 +25,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Initialize environment variables
 env = environ.Env()
 
-# Read from .env file (only for local development)
-env.read_env(os.path.join(BASE_DIR, ".env"))
+# Set ENV early so you can branch correctly
+ENV = os.environ.get("ENV", "development")
+
+# Load environment file based on context
+if ENV == "test":
+    env.read_env(os.path.join(BASE_DIR, ".env.test"))
+else:
+    env.read_env(os.path.join(BASE_DIR, ".env"))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
