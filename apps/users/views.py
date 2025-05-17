@@ -11,9 +11,10 @@ from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework.permissions import AllowAny
 from django.contrib.auth import get_user_model
 from .utils import send_verification_email, send_reset_password_email
+from .filters import UserFilter
 
 from .models import UserAccount
-from .serializers import RegisterSerializer, UserSerializer
+from .serializers import RegisterSerializer, UserSerializer, RecentUserSerializer
 User = get_user_model()
 
 class RegisterView(APIView):
@@ -88,7 +89,7 @@ class AdminRegistrationSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         validated_data['role'] = 'admin'
-        validated_data['is_admin'] = True
+        #validated_data['is_admin'] = True
         password = validated_data.pop('password')
         user = UserAccount.objects.create_user(
             password=password,
@@ -102,11 +103,11 @@ class DashboardStatsSerializer(serializers.Serializer):
     total_ophthalmologists = serializers.IntegerField()
     total_admins = serializers.IntegerField()
 
-# Permiso personalizado para administradores
-class IsAdminUser(IsAuthenticated):
-    """Permiso personalizado que verifica si el usuario es administrador"""
-    def has_permission(self, request, view):
-        return super().has_permission(request, view) and request.user.is_admin
+#class IsAdminUser(BasePermission):
+    """Permiso personalizado que verifica si el usuario tiene el rol 'admin'"""
+
+   # def has_permission(self, request, view):
+        #return bool(request.user and request.user.is_authenticated and request.user.role == 'admin')
 
 # Ahora las vistas para el CRUD y el dashboard
 class UserViewSet(viewsets.ModelViewSet):
@@ -116,11 +117,15 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     queryset = UserAccount.objects.all()
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
-    search_fields = [ 'email', 'name']
-    filterset_fields = ['role']
-    permission_classes = [IsAdminUser]
-    
+    search_fields = ['email', 'name']  # Permite buscar por email y nombre
+    filterset_class = UserFilter  # Usa el filtro personalizado para 'role'
+
+    # permission_classes = [IsAdminUser]
+
     def get_serializer_class(self):
+        """
+        Selecciona el serializer adecuado según la acción.
+        """
         if self.action == 'list':
             return UserSerializer
         elif self.action == 'create':
@@ -128,22 +133,27 @@ class UserViewSet(viewsets.ModelViewSet):
         elif self.action in ['update', 'partial_update']:
             return UserUpdateSerializer
         return UserDetailSerializer
-    
+
     def get_queryset(self):
+        """
+        Personaliza el queryset para incluir filtros de búsqueda.
+        """
         queryset = UserAccount.objects.all()
         search = self.request.query_params.get('search', None)
+
         if search:
             queryset = queryset.filter(
-                Q(email__icontains=search) | 
+                Q(email__icontains=search) |
                 Q(name__icontains=search)
             )
+
         return queryset
 
 class AdminRegistrationView(APIView):
     """
     Vista para registrar específicamente administradores.
     """
-    permission_classes = [IsAdminUser]
+   # permission_classes = [IsAdminUser]
     
     def post(self, request):
         serializer = AdminRegistrationSerializer(data=request.data)
@@ -158,13 +168,13 @@ class DashboardStatsView(APIView):
     Vista para obtener estadísticas del dashboard.
     Solo accesible para administradores.
     """
-    permission_classes = [IsAdminUser]
+   #permission_classes = [IsAdminUser]
     
     def get(self, request):
         stats = {
             'total_users': UserAccount.objects.count(),
-            'total_patients': UserAccount.objects.filter(role='paciente').count(),
-            'total_ophthalmologists': UserAccount.objects.filter(role='oftalmologo').count(),
+            'total_patients': UserAccount.objects.filter(role='patient').count(),
+            'total_ophthalmologists': UserAccount.objects.filter(role='professional').count(),
             'total_admins': UserAccount.objects.filter(role='admin').count(),
         }
         
@@ -189,6 +199,14 @@ class UserProfileView(APIView):
             {"detail": "Validation failed", "errors": serializer.errors},
             status=status.HTTP_400_BAD_REQUEST
         )
+class RecentUsersView(APIView):
+    #permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        # Obtén los últimos 5 usuarios registrados
+        recent_users = UserAccount.objects.order_by('-date_joined')[:5]
+        serializer = RecentUserSerializer(recent_users, many=True)
+        return Response(serializer.data)
 class VerifyEmailView(APIView):
     permission_classes = [AllowAny]
 

@@ -10,7 +10,9 @@ class AdminKPIsSerializer(serializers.Serializer):
     )
 
 class ErrorReportSerializer(serializers.ModelSerializer):
+    created_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")  # Formato de fecha legible
+
     class Meta:
         model = ErrorReport
-        fields = ['id', 'user', 'description', 'created_at', 'resolved']
-        read_only_fields = ['id','user','created_at']
+        fields = ['id', 'user', 'description', 'created_at', 'resolved', 'level']
+        read_only_fields = ['id', 'user', 'created_at']

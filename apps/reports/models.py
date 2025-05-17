@@ -22,5 +22,16 @@ class Report(models.Model):
     diagnostic_probabilities = models.JSONField()
     comments = models.TextField(blank=True)
 
+    patient_name = models.CharField(max_length=100, blank=True) 
+    document_id = models.CharField(max_length=50, blank=True) 
+
+    EYE_CHOICES = [
+        ('OD', 'OD (Right Eye)'),
+        ('OS', 'OS (Left Eye)'),
+    ]
+    eye_side = models.CharField(max_length=2, choices=EYE_CHOICES, default='OD', blank=True)  # OD/OS
+
+    visual_acuity = models.CharField(max_length=20, blank=True)  # Agudeza visual (can be formatted like 20/20 or 6/6)
+
     def __str__(self):
         return f"Report of {self.user.name} - {self.predicted_diagnostic}"
