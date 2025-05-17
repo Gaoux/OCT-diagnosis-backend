@@ -30,3 +30,11 @@ def predict_oct(image_path):
     predictions = model.predict(img)[0]  # Get probability distribution
     predicted_label = LABELS[np.argmax(predictions)]  # Get highest probability label
     return {"prediction": predicted_label, "probabilities": predictions.tolist()}
+
+def reload_model():
+    """Recarga el modelo desde el archivo actualizado."""
+    global model
+    model = tf.keras.models.load_model(MODEL_PATH, compile=False)
+    model.compile(optimizer=Adam(learning_rate=0.001),  
+                  loss='categorical_crossentropy',  
+                  metrics=['accuracy'])
