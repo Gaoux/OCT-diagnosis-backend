@@ -20,13 +20,16 @@ djangorestframework_simplejwt==5.5.0
 docopt==0.6.2
 executing==2.2.0
 fastjsonschema==2.21.1
+filelock==3.18.0
 flatbuffers==25.2.10
+fsspec==2025.3.2
 gast==0.6.0
 google-auth==2.39.0
 google-auth-oauthlib==1.2.2
 google-pasta==0.2.0
 grpcio==1.71.0
 h5py==3.13.0
+huggingface-hub==0.31.2
 idna==3.10
 ipython==8.12.3
 jedi==0.19.2
@@ -65,6 +68,7 @@ pyasn1_modules==0.4.2
 Pygments==2.19.1
 PyJWT==2.9.0
 python-dateutil==2.9.0.post0
+PyYAML==6.0.2
 pyzmq==26.4.0
 referencing==0.36.2
 requests==2.32.3
@@ -83,6 +87,7 @@ tensorflow-io-gcs-filesystem==0.31.0
 termcolor==3.0.1
 tinycss2==1.4.0
 tornado==6.4.2
+tqdm==4.67.1
 traitlets==5.14.3
 typing_extensions==4.13.2
 tzdata==2025.2

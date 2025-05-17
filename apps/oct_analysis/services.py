@@ -4,9 +4,15 @@ import os
 from keras.optimizers import Adam
 from django.conf import settings
 import cv2
+from huggingface_hub import hf_hub_download
 
 # Load the model once when the app starts
-MODEL_PATH = os.path.join(settings.BASE_DIR, "apps/oct_analysis/model/oct_model.h5")
+# MODEL_PATH = os.path.join(settings.BASE_DIR, "apps/oct_analysis/model/oct_model.h5")
+MODEL_PATH = hf_hub_download(
+    repo_id="gaoux/OCT_class",  # Replace with your repo
+    filename="oct_model.h5",
+    cache_dir="apps/oct_analysis/model"
+)
 
 model = tf.keras.models.load_model(MODEL_PATH, compile=False)  # Load the pre-trained model
 
