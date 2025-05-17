@@ -11,11 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:14
+        image: postgres
         env:
-          POSTGRES_USER: your_db_user
-          POSTGRES_PASSWORD: your_db_password
-          POSTGRES_DB: oct_sense
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
         ports:
           - 5432:5432
         options: >-
@@ -34,7 +34,7 @@ jobs:
 
       - name: Copy and load .env.example
         run: |
-          cp .env.example .env
+          cp .env.test .env
           set -a
           source .env
           set +a
