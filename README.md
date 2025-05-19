@@ -90,10 +90,76 @@ This ensures clean, cross-platform, Docker-friendly dependencies.
 - `.env`: Environment variables for DB and Django setup
 
 ---
+## 🧠 IA Model Integration
+
+The backend integrates a deep learning model to classify OCT (Optical Coherence Tomography) images into four diagnostic categories. This model is based on a Keras-compatible architecture (e.g., Xception), trained to assist in ophthalmological pre-diagnosis.
+
+## 📦 Model Requirements 
+
+To ensure compatibility with the system, any model uploaded for the first time must meet the following criteria:
+
+- ✅ **Format:** The model file must be in `.h5` format (Keras HDF5).  
+- ✅ **Input Shape:** It must accept input images of size **(299, 299, 3)**.  
+- ✅ **Output Layer:** The output must have **4 neurons** with **softmax** activation for multi-class classification.  
+- ✅ **Loss Function:** The model must be trained using **categorical_crossentropy**.  
+- ✅ **Class Order:** The prediction outputs must correspond **exactly** to the following order:
+["CNV", "DME", "DRUSEN", "NORMAL"]
+
+### 🆕 Initial Model Upload
+
+To upload the model for the first time:
+
+1. Ensure the model complies with all the above requirements.
+2. Place the `.h5` file in the directory `apps/oct_analysis/model/`.
+3. Verify the file name is exactly oct_model.h5
+4. Start the backend container with Docker
 
 ## 📬 API Endpoints
 
-Coming soon...
+### 👤 Endpoints para Usuarios
+
+| Método | Endpoint                                 | Descripción                                         |
+|--------|------------------------------------------|-----------------------------------------------------|
+| POST   | `/api/users/register/`                   | Registrar un nuevo usuario                          |
+| POST   | `/api/users/login/`                      | Iniciar sesión y obtener token JWT                  |
+| POST   | `/api/users/reset-password/`             | Restablecer contraseña con token                    |
+---
+
+### 🛡️ Endpoints para Administradores
+
+| Método | Endpoint                                 | Descripción                                         |
+|--------|------------------------------------------|-----------------------------------------------------|
+| POST   | `/api/users/register/`                   | Registrar un nuevo usuario                          |
+| GET    | `/api/users/users/`                      | Listar todos los usuarios                           |
+| GET    | `/api/users/users/<id>/`                 | Obtener detalles de un usuario                      |
+| PATCH  | `/api/users/users/<id>/`                 | Editar usuario                                      |
+| DELETE | `/api/users/users/<id>/`                 | Eliminar usuario                                    |
+| POST   | `/api/oct/upload-model/`                 | Subir o reemplazar el modelo `.h5`                  |
+
+---
+### 📄 Endpoints para Reportes
+
+| Método | Endpoint                                   | Descripción                                         |
+|--------|--------------------------------------------|-----------------------------------------------------|
+| POST   | `/api/reports/create/`                     | Crear un nuevo reporte                              |
+| GET    | `/api/reports/history/`                    | Listar reportes del usuario autenticado             |
+| GET    | `/api/reports/`                            | Listar todos los reportes (admin)                   |
+| GET    | `/api/reports/<uuid:id>/`                  | Obtener detalles de un reporte                      |
+| PATCH  | `/api/reports/<uuid:id>/update/`           | Actualizar comentarios de un reporte                |
+| DELETE | `/api/reports/<uuid:id>/delete/`           | Eliminar un reporte                                 |
+| GET    | `/api/reports/<uuid:id>/image/`            | Descargar imagen asociada a un reporte              |
+| GET    | `/api/reports/summary/`                    | Obtener resumen de reportes (estadísticas)          |
+
+---
+### 🤖 Modelo de IA
+
+| Método | Endpoint                      | Descripción                                         |
+|--------|-------------------------------|-----------------------------------------------------|
+| POST   | `/api/oct/predict/`           | Realizar predicción sobre una imagen OCT            |
+
+> **Nota:** Todos los endpoints (excepto login y reset-password) requieren autenticación mediante token JWT.
+
+
 
 ---
 
