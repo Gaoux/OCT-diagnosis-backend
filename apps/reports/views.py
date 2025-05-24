@@ -5,13 +5,14 @@ from .serializers import ReportSerializer
 from rest_framework.views import APIView
 from django.db.models import Count
 from django.http import FileResponse, Http404
+from .permissions import IsProfessionalUser
 
 # Create Report View
 # This view allows authenticated users to create a report.
 class CreateReportView(generics.CreateAPIView):
     queryset = Report.objects.all()
     serializer_class = ReportSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsProfessionalUser]
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -24,7 +25,10 @@ class UserReportListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Report.objects.filter(user=self.request.user).order_by('-created_at')
+         if self.request.user.is_superuser or self.request.user.is_admin:
+            return Report.objects.all().order_by('-created_at')
+         else:
+            return Report.objects.filter(user=self.request.user).order_by('-created_at')
     
 # This view allows authenticated users to view their own reports.
 # It retrieves a specific report based on the provided UUID.
@@ -33,12 +37,15 @@ class ReportDetailView(generics.RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Report.objects.filter(user=self.request.user)
+         if self.request.user.is_superuser or self.request.user.is_admin:
+            return Report.objects.all()
+         else:
+            return Report.objects.filter(user=self.request.user).order_by('-created_at')
 
 # This view allows authenticated users to update their own reports.
 class ReportUpdateView(generics.UpdateAPIView):
     serializer_class = ReportSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsProfessionalUser]
 
     def get_queryset(self):
         return Report.objects.filter(user=self.request.user)
@@ -50,6 +57,10 @@ class ReportDeleteView(generics.DestroyAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
+        # Si el usuario es superusuario o administrador, puede acceder a todos los reportes
+        if self.request.user.is_superuser or getattr(self.request.user, 'is_admin', False):
+            return Report.objects.all()
+        # Si no, solo puede acceder a sus propios reportes
         return Report.objects.filter(user=self.request.user)
     
 # This view allows authenticated users to view a summary of their reports.
@@ -58,7 +69,7 @@ class ReportDeleteView(generics.DestroyAPIView):
 # - The most common diagnostics, 
 # - The average confidence level.
 class ReportSummaryView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsProfessionalUser]
 
     def get(self, request):
         user_reports = Report.objects.filter(user=request.user)
@@ -74,7 +85,13 @@ class SecureMediaView(APIView):
 
     def get(self, request, report_id):
         try:
-            report = Report.objects.get(id=report_id, user=request.user)
+            # Si el usuario es superusuario o administrador, puede acceder a cualquier reporte
+            if request.user.is_superuser or getattr(request.user, 'is_admin', False):
+                report = Report.objects.get(id=report_id)
+            else:
+                # Si no, solo puede acceder a sus propios reportes
+                report = Report.objects.get(id=report_id, user=request.user)
+
             image_path = report.image.image_file.path
         except Report.DoesNotExist:
             raise Http404("Not found or permission denied")

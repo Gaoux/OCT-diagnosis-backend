@@ -14,7 +14,8 @@ from pathlib import Path
 import environ
 import os
 from corsheaders.defaults import default_headers
-
+env = environ.Env()
+environ.Env.read_env()
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -24,8 +25,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Initialize environment variables
 env = environ.Env()
 
-# Read from .env file (only for local development)
-env.read_env(os.path.join(BASE_DIR, ".env"))
+# Set ENV early so you can branch correctly
+ENV = os.environ.get("ENV", "development")
+
+# Load environment file based on context
+if ENV == "test":
+    env.read_env(os.path.join(BASE_DIR, ".env.test"))
+else:
+    env.read_env(os.path.join(BASE_DIR, ".env"))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -33,12 +40,18 @@ env.read_env(os.path.join(BASE_DIR, ".env"))
 SECRET_KEY = env("SECRET_KEY")  # Load secret key securely
 DEBUG = env("DEBUG")  # Load debug mode (set to False in production)
 
+FRONTEND_URL = env('FRONTEND_URL', cast=str, default='http://localhost:3000')
 CORS_ALLOW_CREDENTIALS = True
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost"])
 
 CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=["http://localhost:3000"])
-
+CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS
+CORS_EXPOSE_HEADERS = ['Authorization']
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    'X-CSRFToken',
+    'Authorization',
+]
 # Application definition
 
 INSTALLED_APPS = [
@@ -104,7 +117,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / "templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -123,17 +136,34 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+import sys
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env('DB_NAME'),
-        'USER': env('DB_USER'),
-        'PASSWORD': env('DB_PASSWORD'),
-        'HOST': env('DB_HOST',  default='localhost'),
-        'PORT': env('DB_PORT',  default='5432'),
+if 'test' in sys.argv or 'pytest' in sys.argv:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',  # Base de datos en memoria (más rápida)
+            # Opcional: Usar archivo físico para debug (reemplaza :memory:)
+            # 'NAME': BASE_DIR / 'test_db.sqlite3',
+        }
     }
-}
+    # Desactiva migraciones para acelerar pruebas
+    MIGRATION_MODULES = {
+        'oct_analysis': None,
+        'users': None,
+        'reports': None,
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': env('DB_NAME'),
+            'USER': env('DB_USER'),
+            'PASSWORD': env('DB_PASSWORD'),
+            'HOST': env('DB_HOST',  default='localhost'),
+            'PORT': env('DB_PORT',  default='5432'),
+        }
+    }
 
 # URL path for accessing media files via browser (e.g., http://localhost:8000/media/...)
 MEDIA_URL = '/media/'
@@ -184,11 +214,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Custom User (required for login/register)
 AUTH_USER_MODEL = 'users.UserAccount'
 
-# CORS CONFIG PARA FRONTEND
-CORS_ALLOW_CREDENTIALS = True
+#Email connections 
+# Mailtrap Sandbox
+EMAIL_BACKEND = env('EMAIL_BACKEND')
+EMAIL_HOST = env('EMAIL_HOST')
+EMAIL_PORT = env.int('EMAIL_PORT')  # ¡Importante! Convierte a entero.
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)  # True
+EMAIL_USE_SSL = env.bool('EMAIL_USE_SSL', default=False)  # False
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
 
-
-CORS_ALLOW_HEADERS = list(default_headers) + [
-    'X-CSRFToken',
-    'authorization',
-]

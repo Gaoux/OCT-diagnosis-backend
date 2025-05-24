@@ -4,9 +4,15 @@ import os
 from keras.optimizers import Adam
 from django.conf import settings
 import cv2
+from huggingface_hub import hf_hub_download
 
 # Load the model once when the app starts
-MODEL_PATH = os.path.join(settings.BASE_DIR, "apps/oct_analysis/model/oct_model.h5")
+# MODEL_PATH = os.path.join(settings.BASE_DIR, "apps/oct_analysis/model/oct_model.h5")
+MODEL_PATH = hf_hub_download(
+    repo_id="gaoux/OCT_class",  # Replace with your repo
+    filename="oct_model.h5",
+    cache_dir="apps/oct_analysis/model"
+)
 
 model = tf.keras.models.load_model(MODEL_PATH, compile=False)  # Load the pre-trained model
 
@@ -30,3 +36,11 @@ def predict_oct(image_path):
     predictions = model.predict(img)[0]  # Get probability distribution
     predicted_label = LABELS[np.argmax(predictions)]  # Get highest probability label
     return {"prediction": predicted_label, "probabilities": predictions.tolist()}
+
+def reload_model():
+    """Recarga el modelo desde el archivo actualizado."""
+    global model
+    model = tf.keras.models.load_model(MODEL_PATH, compile=False)
+    model.compile(optimizer=Adam(learning_rate=0.001),  
+                  loss='categorical_crossentropy',  
+                  metrics=['accuracy'])
