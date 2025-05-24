@@ -21,7 +21,16 @@ class RegisterSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserAccount
-        fields = ('id', 'email', 'name', 'role', 'is_admin')
+        fields = [
+            'id',
+            'name',
+            'email',
+            'is_verified',
+            'login_count',
+            'role',
+            'date_joined',
+            'last_login'
+        ]
 
 class UserDetailSerializer(serializers.ModelSerializer):
     """Serializer para ver detalles completos de un usuario"""
