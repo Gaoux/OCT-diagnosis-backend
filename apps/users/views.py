@@ -14,14 +14,13 @@ from .utils import send_verification_email, send_reset_password_email
 from .filters import UserFilter
 
 from .models import UserAccount
-from .serializers import RegisterSerializer, UserSerializer, RecentUserSerializer
+from .serializers import AdminRegistrationSerializer, AdminUserUpdateSerializer, DashboardStatsSerializer, RegisterSerializer, UserCreateSerializer, UserDetailSerializer, UserSerializer, RecentUserSerializer, UserUpdateSerializer
 User = get_user_model()
 
 class RegisterView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        print(">>>>> DATA RECIBIDA:", request.data)
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
@@ -54,60 +53,30 @@ class LoginView(APIView):
             })
         return Response({'error': 'Credenciales inválidas'}, status=status.HTTP_401_UNAUTHORIZED)
 
-class UserDetailSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserAccount
-        fields = ('id',  'email', 'name', 'role', 'is_admin', 'date_joined')
-        read_only_fields = ('date_joined',)
+class AdminUserUpdateView(APIView):
+    permission_classes = [IsAuthenticated]  # Replace with IsAdminUser if needed
 
-class UserCreateSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
-    
-    class Meta:
-        model = UserAccount
-        fields = ('id',  'email', 'password', 'name', 'role', 'is_admin')
-    
-    def create(self, validated_data):
-        password = validated_data.pop('password')
-        user = UserAccount.objects.create_user(
-            password=password,
-            **validated_data
-        )
-        return user
+    def patch(self, request, pk):
+        try:
+            user = UserAccount.objects.get(pk=pk)
+        except UserAccount.DoesNotExist:
+            return Response({'error': 'Usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
 
-class UserUpdateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserAccount
-        fields = ('id', 'email', 'name', 'role', 'is_admin')
+        data = request.data.copy()
+        print(">>>> PATCH data received:", data)  # DEBUG HERE
+        # Handle password update
+        new_password = data.get('password')
+        if new_password:
+            user.set_password(new_password)
+            user.save()
+            data.pop('password', None)  # Avoid issues with serializer
 
-class AdminRegistrationSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
-    
-    class Meta:
-        model = UserAccount
-        fields = ('id', 'email', 'password', 'name')
-    
-    def create(self, validated_data):
-        validated_data['role'] = 'admin'
-        #validated_data['is_admin'] = True
-        password = validated_data.pop('password')
-        user = UserAccount.objects.create_user(
-            password=password,
-            **validated_data
-        )
-        return user
+        serializer = AdminUserUpdateSerializer(user, data=data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'Usuario actualizado correctamente', 'user': serializer.data})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class DashboardStatsSerializer(serializers.Serializer):
-    total_users = serializers.IntegerField()
-    total_patients = serializers.IntegerField()
-    total_ophthalmologists = serializers.IntegerField()
-    total_admins = serializers.IntegerField()
-
-#class IsAdminUser(BasePermission):
-    """Permiso personalizado que verifica si el usuario tiene el rol 'admin'"""
-
-   # def has_permission(self, request, view):
-        #return bool(request.user and request.user.is_authenticated and request.user.role == 'admin')
 
 # Ahora las vistas para el CRUD y el dashboard
 class UserViewSet(viewsets.ModelViewSet):
@@ -131,7 +100,7 @@ class UserViewSet(viewsets.ModelViewSet):
         elif self.action == 'create':
             return UserCreateSerializer
         elif self.action in ['update', 'partial_update']:
-            return UserUpdateSerializer
+            return AdminUserUpdateSerializer
         return UserDetailSerializer
 
     def get_queryset(self):
@@ -199,6 +168,7 @@ class UserProfileView(APIView):
             {"detail": "Validation failed", "errors": serializer.errors},
             status=status.HTTP_400_BAD_REQUEST
         )
+
 class RecentUsersView(APIView):
     #permission_classes = [IsAdminUser]
 
@@ -207,6 +177,7 @@ class RecentUsersView(APIView):
         recent_users = UserAccount.objects.order_by('-date_joined')[:5]
         serializer = RecentUserSerializer(recent_users, many=True)
         return Response(serializer.data)
+
 class VerifyEmailView(APIView):
     permission_classes = [AllowAny]
 

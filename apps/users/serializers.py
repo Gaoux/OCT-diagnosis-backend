@@ -36,8 +36,8 @@ class UserDetailSerializer(serializers.ModelSerializer):
     """Serializer para ver detalles completos de un usuario"""
     class Meta:
         model = UserAccount
-        fields = ('id', 'email', 'name', 'role', 'is_admin', 'date_joined')
-        read_only_fields = ('date_joined',)
+        fields = ('id', 'email', 'name', 'role', 'is_admin', 'date_joined', 'is_verified', 'login_count', 'last_login')
+        read_only_fields = ('date_joined', 'login_count', 'last_login')
 
 class UserCreateSerializer(serializers.ModelSerializer):
     """Serializer para crear usuarios desde el panel de administración"""
@@ -111,3 +111,63 @@ class RecentUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserAccount
         fields = ['id', 'name', 'email', 'date_joined']
+
+class UserDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserAccount
+        fields = ('id',  'email', 'name', 'role', 'is_admin', 'date_joined', 'is_verified', 'login_count', 'last_login')
+        read_only_fields = ('date_joined',)
+
+class UserCreateSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+    
+    class Meta:
+        model = UserAccount
+        fields = ('id',  'email', 'password', 'name', 'role', 'is_admin')
+    
+    def create(self, validated_data):
+        password = validated_data.pop('password')
+        user = UserAccount.objects.create_user(
+            password=password,
+            **validated_data
+        )
+        return user
+
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserAccount
+        fields = ('id', 'email', 'name', 'role', 'is_admin')
+
+class AdminUserUpdateSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    
+    class Meta:
+        model = UserAccount
+        fields = ('id', 'email', 'name', 'role', 'is_verified','password')
+        extra_kwargs = {
+            'email': {'required': False},
+            'name': {'required': False},
+            'role': {'required': False},
+            'is_verified': {'required': False},
+        }
+
+    def update(self, instance, validated_data):
+        # Manejo explícito de contraseña
+        password = validated_data.pop('password', None)
+        if password:
+            instance.set_password(password)
+
+        # Asegura que is_verified se actualice incluso si es False
+        if 'is_verified' in validated_data:
+            instance.is_verified = validated_data.pop('is_verified')
+
+
+        return super().update(instance, validated_data)
+
+
+#class IsAdminUser(BasePermission):
+    """Permiso personalizado que verifica si el usuario tiene el rol 'admin'"""
+
+   # def has_permission(self, request, view):
+        #return bool(request.user and request.user.is_authenticated and request.user.role == 'admin')

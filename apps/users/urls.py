@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import RegisterView, LoginView, UserProfileView, UserViewSet, UserViewSet,AdminRegistrationView, DashboardStatsView,RecentUsersView, VerifyEmailView, ForgotPasswordView, ResetPasswordView
+from .views import RegisterView, LoginView, UserProfileView, AdminUserUpdateView, UserViewSet, UserViewSet,AdminRegistrationView, DashboardStatsView,RecentUsersView, VerifyEmailView, ForgotPasswordView, ResetPasswordView
 
 router = DefaultRouter()
 router.register('users', UserViewSet, basename='user')
@@ -17,4 +17,6 @@ urlpatterns = [
     path('verify-email/', VerifyEmailView.as_view(), name='verify-email'),
     path('forgot-password/', ForgotPasswordView.as_view(), name='forgot-password'),
     path('reset-password/', ResetPasswordView.as_view(), name='reset-password'),
+    path('admin/users/<uuid:pk>/update/', AdminUserUpdateView.as_view(), name='admin-user-update')
+
 ]
