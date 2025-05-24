@@ -1,9 +1,17 @@
 from rest_framework import serializers
+
+from apps.users.models import UserAccount
 from .models import Report, Image
 import json
 
+class UserMiniSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserAccount
+        fields = ['id', 'name', 'email']
+        
 class ReportSerializer(serializers.ModelSerializer):
     image_file = serializers.ImageField(write_only=True, required=True)
+    created_by = UserMiniSerializer(read_only=True, source='user')
 
     class Meta:
         model = Report
