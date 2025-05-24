@@ -40,7 +40,8 @@ You can copy the provided `.env.example`:
 ```bash
 cp .env.example .env
 ```
-Or manually create your own .env with the structure of the `env.example` file.
+
+Or manually create your own `.env` with the structure of the `env.example` file.
 
 #### 3. Build the Docker Images
 
@@ -85,15 +86,64 @@ This ensures clean, cross-platform, Docker-friendly dependencies.
 
 - `docker-compose.yml`: Defines services for Django and PostgreSQL
 - `requirements.txt`: pip dependencies
-- `environment.yml`: Defines the Conda environment (used only if working outside Docker)
+- `environment.yml`: Defines the Conda environment (only if working outside Docker)
 - `manage.py`, `settings.py`: Django backend
 - `.env`: Environment variables for DB and Django setup
 
 ---
 
+## 🧠 AI Model Integration
+
+The backend integrates a deep learning model to classify OCT (Optical Coherence Tomography) images into four diagnostic categories. This model is based on a Keras-compatible architecture (e.g., Xception), trained to assist in ophthalmological pre-diagnosis.
+
+
 ## 📬 API Endpoints
 
-Coming soon...
+### 👤 User Endpoints
+
+| Method | Endpoint                     | Description                  |
+| ------ | ---------------------------- | ---------------------------- |
+| POST   | `/api/users/register/`       | Register a new user          |
+| POST   | `/api/users/login/`          | Log in and obtain JWT token  |
+| POST   | `/api/users/reset-password/` | Reset password using a token |
+
+---
+
+### 🛡️ Admin Endpoints
+
+| Method | Endpoint                 | Description                       |
+| ------ | ------------------------ | --------------------------------- |
+| POST   | `/api/users/register/`   | Register a new user               |
+| GET    | `/api/users/users/`      | List all users                    |
+| GET    | `/api/users/users/<id>/` | Get user details                  |
+| PATCH  | `/api/users/users/<id>/` | Update user information           |
+| DELETE | `/api/users/users/<id>/` | Delete a user                     |
+| POST   | `/api/oct/upload-model/` | Upload or replace the `.h5` model |
+
+---
+
+### 📄 Report Endpoints
+
+| Method | Endpoint                         | Description                             |
+| ------ | -------------------------------- | --------------------------------------- |
+| POST   | `/api/reports/create/`           | Create a new report                     |
+| GET    | `/api/reports/history/`          | List reports for the authenticated user |
+| GET    | `/api/reports/`                  | List all reports (admin only)           |
+| GET    | `/api/reports/<uuid:id>/`        | Get report details                      |
+| PATCH  | `/api/reports/<uuid:id>/update/` | Update report comments                  |
+| DELETE | `/api/reports/<uuid:id>/delete/` | Delete a report                         |
+| GET    | `/api/reports/<uuid:id>/image/`  | Download image associated with a report |
+| GET    | `/api/reports/summary/`          | Get summary of reports (statistics)     |
+
+---
+
+### 🤖 AI Prediction Endpoint
+
+| Method | Endpoint            | Description                    |
+| ------ | ------------------- | ------------------------------ |
+| POST   | `/api/oct/predict/` | Run prediction on an OCT image |
+
+> **Note:** All endpoints (except login, register and reset-password) require JWT authentication.
 
 ---
 
