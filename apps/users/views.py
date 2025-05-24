@@ -12,6 +12,7 @@ from rest_framework.permissions import AllowAny
 from django.contrib.auth import get_user_model
 from .utils import send_verification_email, send_reset_password_email
 from .filters import UserFilter
+from .permissions import IsAdminUser
 
 from .models import UserAccount
 from .serializers import AdminRegistrationSerializer, AdminUserUpdateSerializer, DashboardStatsSerializer, RegisterSerializer, UserCreateSerializer, UserDetailSerializer, UserSerializer, RecentUserSerializer, UserUpdateSerializer
@@ -54,7 +55,7 @@ class LoginView(APIView):
         return Response({'error': 'Credenciales inválidas'}, status=status.HTTP_401_UNAUTHORIZED)
 
 class AdminUserUpdateView(APIView):
-    permission_classes = [IsAuthenticated]  # Replace with IsAdminUser if needed
+    permission_classes = [IsAuthenticated, IsAdminUser]
 
     def patch(self, request, pk):
         try:
@@ -84,6 +85,7 @@ class UserViewSet(viewsets.ModelViewSet):
     ViewSet para el CRUD completo de usuarios.
     Solo accesible para administradores.
     """
+    permission_classes = [IsAuthenticated, IsAdminUser]
     queryset = UserAccount.objects.all()
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ['email', 'name']  # Permite buscar por email y nombre
@@ -123,7 +125,7 @@ class AdminRegistrationView(APIView):
     Vista para registrar específicamente administradores.
     """
    # permission_classes = [IsAdminUser]
-    
+    permission_classes = [IsAuthenticated, IsAdminUser]
     def post(self, request):
         serializer = AdminRegistrationSerializer(data=request.data)
         if serializer.is_valid():
@@ -137,8 +139,7 @@ class DashboardStatsView(APIView):
     Vista para obtener estadísticas del dashboard.
     Solo accesible para administradores.
     """
-   #permission_classes = [IsAdminUser]
-    
+    permission_classes = [IsAuthenticated, IsAdminUser]
     def get(self, request):
         stats = {
             'total_users': UserAccount.objects.count(),
