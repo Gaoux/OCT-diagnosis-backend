@@ -46,7 +46,12 @@ CORS_ALLOW_CREDENTIALS = True
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost"])
 
 CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=["http://localhost:3000"])
-
+CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS
+CORS_EXPOSE_HEADERS = ['Authorization']
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    'X-CSRFToken',
+    'Authorization',
+]
 # Application definition
 
 INSTALLED_APPS = [
@@ -209,14 +214,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Custom User (required for login/register)
 AUTH_USER_MODEL = 'users.UserAccount'
 
-# CORS CONFIG PARA FRONTEND
-CORS_ALLOW_CREDENTIALS = True
-
-
-CORS_ALLOW_HEADERS = list(default_headers) + [
-    'X-CSRFToken',
-    'authorization',
-]
 #Email connections 
 # Mailtrap Sandbox
 EMAIL_BACKEND = env('EMAIL_BACKEND')
