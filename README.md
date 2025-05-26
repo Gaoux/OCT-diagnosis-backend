@@ -4,6 +4,14 @@
 
 OCT-Diagnosis-Backend is a Django-based backend for an Optical Coherence Tomography (OCT) diagnostic system. This backend provides RESTful API endpoints to handle image uploads, process medical images, and return AI-driven diagnostic insights.
 
+## 🔗 Related Repositories
+
+- **Frontend (React + Vite)**  
+  [https://github.com/Gaoux/OCTsense](https://github.com/Gaoux/OCTsense)
+
+- **IA Model (Hugging Face – OCT Classification)**  
+  [https://huggingface.co/gaoux/OCTsense](https://huggingface.co/gaoux/OCTsense)
+
 ## ✨ Features
 
 - Image upload and preprocessing
@@ -95,7 +103,6 @@ This ensures clean, cross-platform, Docker-friendly dependencies.
 ## 🧠 AI Model Integration
 
 The backend integrates a deep learning model to classify OCT (Optical Coherence Tomography) images into four diagnostic categories. This model is based on a Keras-compatible architecture (e.g., Xception), trained to assist in ophthalmological pre-diagnosis.
-
 
 ## 📬 API Endpoints
 
