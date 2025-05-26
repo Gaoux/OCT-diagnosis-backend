@@ -9,8 +9,8 @@ OCT-Diagnosis-Backend is a Django-based backend for an Optical Coherence Tomogra
 - **Frontend (React + Vite)**  
   [https://github.com/Gaoux/OCTsense](https://github.com/Gaoux/OCTsense)
 
-- **IA Model (Hugging Face – OCT Classification)**  
-  [https://huggingface.co/gaoux/OCTsense](https://huggingface.co/gaoux/OCTsense)
+- **AI Model (Hugging Face – OCT Classification)**  
+  [https://huggingface.co/gaoux/OCT_class](https://huggingface.co/gaoux/OCT_class)
 
 ## ✨ Features
 
