@@ -6,7 +6,7 @@ from django.template.loader import render_to_string
 
 def send_verification_email(user, request):
     token = AccessToken.for_user(user) 
-    verify_link = f"{settings.FRONTEND_URL}/verify-email?token={str(token)}"
+    verify_link = f"{settings.FRONTEND_URL}/auth/verify-email?token={str(token)}"
 
     subject = "OCTSENSE: Confirma tu cuenta"
     text_content = f"""
@@ -32,7 +32,7 @@ def send_verification_email(user, request):
 
 def send_reset_password_email(user, request):
     token = AccessToken.for_user(user)  
-    reset_link = f"{settings.FRONTEND_URL}/reset-password?token={str(token)}"
+    reset_link = f"{settings.FRONTEND_URL}/auth/reset-password?token={str(token)}"
 
     subject = "OCTSENSE: Restablece tu contraseña"
     text_content = f"Hola {user.name}, has solicitado restablecer tu contraseña. Usa este enlace: {reset_link}"
