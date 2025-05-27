@@ -25,7 +25,7 @@ class UserReportListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-         if self.request.user.is_superuser or self.request.user.is_admin:
+         if self.request.user.is_admin:
             return Report.objects.all().order_by('-created_at')
          else:
             return Report.objects.filter(user=self.request.user).order_by('-created_at')
@@ -37,7 +37,7 @@ class ReportDetailView(generics.RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-         if self.request.user.is_superuser or self.request.user.is_admin:
+         if self.request.user.is_admin:
             return Report.objects.all()
          else:
             return Report.objects.filter(user=self.request.user).order_by('-created_at')
@@ -58,7 +58,7 @@ class ReportDeleteView(generics.DestroyAPIView):
 
     def get_queryset(self):
         # Si el usuario es superusuario o administrador, puede acceder a todos los reportes
-        if self.request.user.is_superuser or getattr(self.request.user, 'is_admin', False):
+        if self.request.user.is_admin:
             return Report.objects.all()
         # Si no, solo puede acceder a sus propios reportes
         return Report.objects.filter(user=self.request.user)
@@ -86,7 +86,7 @@ class SecureMediaView(APIView):
     def get(self, request, report_id):
         try:
             # Si el usuario es superusuario o administrador, puede acceder a cualquier reporte
-            if request.user.is_superuser or getattr(request.user, 'is_admin', False):
+            if request.user.is_admin:
                 report = Report.objects.get(id=report_id)
             else:
                 # Si no, solo puede acceder a sus propios reportes

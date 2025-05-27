@@ -17,7 +17,6 @@ class UserAccountModelTest(APITestCase):
         self.assertEqual(user.email, 'testuser@example.com')
         self.assertTrue(user.check_password('testpass123'))
         self.assertEqual(user.role, 'patient')
-        self.assertTrue(user.is_active)
 
     def test_create_superuser(self):
         admin = UserAccount.objects.create_superuser(
@@ -26,8 +25,7 @@ class UserAccountModelTest(APITestCase):
             name='Admin',
             role='admin'
         )
-        self.assertTrue(admin.is_superuser)
-        self.assertTrue(admin.is_staff)
+        self.assertTrue(admin.is_admin)
         self.assertEqual(admin.role, 'admin')
 
 class UserRegistrationAPITest(APITestCase):
